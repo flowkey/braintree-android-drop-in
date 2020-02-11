@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.braintreepayments.api.Card;
@@ -211,14 +212,22 @@ public class AddCardActivity extends BaseActivity implements ConfigurationListen
         }
     }
 
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     @State
     private int determineNextState(View v) {
         int nextState = mState;
-        if (v.getId() == mAddCardView.getId() && !TextUtils.isEmpty(mAddCardView.getCardForm().getCardNumber())) {
-            if (!mConfiguration.getUnionPay().isEnabled() || !mClientTokenPresent) {
+        String cardNumber = mAddCardView.getCardForm().getCardNumber();
+        if (v.getId() == mAddCardView.getId() && !TextUtils.isEmpty(cardNumber)) {
+            boolean isUnionPayCard = cardNumber.startsWith("62");
+            if (!isUnionPayCard || (!mConfiguration.getUnionPay().isEnabled() || !mClientTokenPresent)) {
+                showToast("not using union pay");
                 mEditCardView.useUnionPay(this, false, false);
                 nextState = DETAILS_ENTRY;
             } else {
+                showToast("getting union pay capabilities");
                 UnionPay.fetchCapabilities(mBraintreeFragment, mAddCardView.getCardForm().getCardNumber());
             }
         } else if (v.getId() == mEditCardView.getId()) {
