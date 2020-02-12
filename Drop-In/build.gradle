@@ -111,7 +111,7 @@ artifacts {
 
 signing {
     required {
-        !version.endsWith("SNAPSHOT") && !version.endsWith("DEVELOPMENT")
+        false
     }
     sign configurations.archives
 }
