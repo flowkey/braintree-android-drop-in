@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.braintreepayments.api.Card;
@@ -212,22 +211,19 @@ public class AddCardActivity extends BaseActivity implements ConfigurationListen
         }
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
     @State
     private int determineNextState(View v) {
         int nextState = mState;
         String cardNumber = mAddCardView.getCardForm().getCardNumber();
         if (v.getId() == mAddCardView.getId() && !TextUtils.isEmpty(cardNumber)) {
-            boolean isUnionPayCard = cardNumber.startsWith("62");
+            // Skip 'UnionPay.fetchCapabilities' if the card is NOT UnionPay
+            // UnionPay cards start with 62, except some Discover cards that start with 622
+            // https://github.com/braintree/android-card-form/blob/master/CardForm/src/main/java/com/braintreepayments/cardform/utils/CardType.java
+            boolean isUnionPayCard = cardNumber.startsWith("62") && !cardNumber.startsWith("622");
             if (!isUnionPayCard || (!mConfiguration.getUnionPay().isEnabled() || !mClientTokenPresent)) {
-                showToast("not using union pay");
                 mEditCardView.useUnionPay(this, false, false);
                 nextState = DETAILS_ENTRY;
             } else {
-                showToast("getting union pay capabilities");
                 UnionPay.fetchCapabilities(mBraintreeFragment, mAddCardView.getCardForm().getCardNumber());
             }
         } else if (v.getId() == mEditCardView.getId()) {
