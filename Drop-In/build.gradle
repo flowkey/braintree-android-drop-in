@@ -36,6 +36,12 @@ android {
         includeAndroidResources true
     }
 
+    testOptions {
+        unitTests.all {
+            it.exclude 'com/braintreepayments/api/dropin/**'
+        }
+    }
+
     lintOptions {
         warning 'GradleCompatible'
         textReport true
